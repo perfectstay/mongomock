@@ -13,7 +13,7 @@ var (
 )
 
 func (s *ProtocolSuite) TestNewOpReplay(c *C) {
-	op := NewOpReplay(&MsgHeader{RequestID: 198}, 1111111)
+	op := NewOpReply(&MsgHeader{RequestID: 198}, 1111111)
 	op.AddDocument(map[string]string{"foo": "bar"})
 
 	b := bytes.NewBuffer([]byte{})
