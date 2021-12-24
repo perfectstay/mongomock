@@ -7,10 +7,10 @@ import (
 
 	"github.com/perfectstay/mongomock/db"
 	"github.com/perfectstay/mongomock/protocol"
+	"go.mongodb.org/mongo-driver/mongo/address"
+	"go.mongodb.org/mongo-driver/mongo/description"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/x/mongo/driver"
-	"go.mongodb.org/mongo-driver/x/mongo/driver/address"
-	"go.mongodb.org/mongo-driver/x/mongo/driver/description"
 )
 
 type TestConnection struct {
@@ -74,6 +74,15 @@ func (c TestConnection) ID() string {
 func (c TestConnection) Address() address.Address {
 	fmt.Println("Address")
 	return "testAddress"
+}
+
+func (c TestConnection) ServerConnectionID() *int32 {
+	var id int32 = 0
+	return &id
+}
+
+func (c TestConnection) Stale() bool {
+	return false
 }
 
 func NewConnection() driver.Connection {
