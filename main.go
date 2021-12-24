@@ -21,9 +21,12 @@ func main() {
 	}
 	fmt.Println("dbs ")
 	fmt.Println(cli.ListDatabases(ctx, bson.M{}))
-	fmt.Println("cols ")
-	fmt.Println(cli.Database("testdb").ListCollectionNames(ctx, bson.M{}))
-	fmt.Println(cli.Database("testdb").Collection("testcol").Find(ctx, bson.M{"A": "B"}))
-	fmt.Println(cli.Database("testdb").Collection("testcol").InsertOne(ctx, bson.M{"A": "B"}))
+	// fmt.Println("cols ")
+	// fmt.Println(cli.Database("testdb").ListCollectionNames(ctx, bson.M{}))
+	// fmt.Println(cli.Database("testdb").Collection("testcol").Find(ctx, bson.M{"A": "B"}))
+	// fmt.Println(cli.Database("testdb").Collection("testcol").InsertOne(ctx, bson.M{"A": "B"}))
+
+	// fmt.Println(cli.Database("testdb").Collection("testcol").FindOneAndUpdate(ctx, bson.M{}, bson.M{"$set": bson.M{"a": "b"}}, options.FindOneAndUpdate().SetUpsert(true)))
+
 	//	fmt.Println(cli.Database(ctx, nil))
 }

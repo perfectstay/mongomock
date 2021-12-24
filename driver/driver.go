@@ -3,7 +3,6 @@ package driver
 import (
 	"bytes"
 	"context"
-	"fmt"
 
 	"github.com/perfectstay/mongomock/db"
 	"github.com/perfectstay/mongomock/protocol"
@@ -19,7 +18,7 @@ type TestConnection struct {
 }
 
 func (c TestConnection) WriteWireMessage(ctx context.Context, b []byte) error {
-	fmt.Println("out >> ", string(b))
+	//fmt.Println("out >> ", string(b))
 	h, err := protocol.ReadMsgHeader(bytes.NewReader(b))
 	if err != nil {
 		return err
@@ -41,19 +40,19 @@ func (c TestConnection) WriteWireMessage(ctx context.Context, b []byte) error {
 }
 
 func (c TestConnection) ReadWireMessage(ctx context.Context, dst []byte) ([]byte, error) {
-	fmt.Println("read ", len(dst))
+	//fmt.Println("read ", len(dst))
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()
 	case data := <-c.responseChan:
-		fmt.Println("data ", len(data))
+		//fmt.Println("data ", len(data))
 		return data, nil
 	}
 	return nil, nil
 }
 
 func (c TestConnection) Description() description.Server {
-	fmt.Println("Description")
+	//fmt.Println("Description")
 	return description.Server{
 		MaxBatchCount:   999999,
 		MaxDocumentSize: 999999,
@@ -62,17 +61,17 @@ func (c TestConnection) Description() description.Server {
 }
 
 func (c TestConnection) Close() error {
-	fmt.Println("Close")
+	//fmt.Println("Close")
 	return nil
 }
 
 func (c TestConnection) ID() string {
-	fmt.Println("ID")
+	//fmt.Println("ID")
 	return "testCnxId"
 }
 
 func (c TestConnection) Address() address.Address {
-	fmt.Println("Address")
+	//fmt.Println("Address")
 	return "testAddress"
 }
 
