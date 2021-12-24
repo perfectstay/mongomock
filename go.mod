@@ -1,4 +1,4 @@
-module github.com/alexandrethiel/mongomock
+module github.com/perfectstay/mongomock
 
 go 1.14
 

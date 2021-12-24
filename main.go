@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	drivermock "github.com/alexandrethiel/mongomock/driver"
+	drivermock "github.com/perfectstay/mongomock/driver"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )

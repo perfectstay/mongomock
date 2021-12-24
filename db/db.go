@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/alexandrethiel/mongomock/protocol"
+	"github.com/perfectstay/mongomock/protocol"
 )
 
 type Db struct {

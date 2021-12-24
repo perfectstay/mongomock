@@ -5,8 +5,8 @@ import (
 	"net"
 	"strings"
 
-	"github.com/alexandrethiel/mongomock/db"
-	"github.com/alexandrethiel/mongomock/protocol"
+	"github.com/perfectstay/mongomock/db"
+	"github.com/perfectstay/mongomock/protocol"
 )
 
 type Server struct {
