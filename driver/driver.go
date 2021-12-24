@@ -83,10 +83,14 @@ func NewConnection() driver.Connection {
 	}
 }
 
+func NewDeployement() driver.Deployment {
+	return driver.SingleConnectionDeployment{
+		C: NewConnection(),
+	}
+}
+
 func NewClientOption() *options.ClientOptions {
 	return &options.ClientOptions{
-		Deployment: driver.SingleConnectionDeployment{
-			C: NewConnection(),
-		},
+		Deployment: NewDeployement(),
 	}
 }
