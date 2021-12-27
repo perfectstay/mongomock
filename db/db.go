@@ -155,7 +155,7 @@ func (d *Db) find(dbName, colName string, query *protocol.OpQuery, reply *protoc
 		reply.AddDocument(doc)
 	}
 	reply.Documents = reply.Documents[query.NumberToSkip:]
-	if query.NumberToReturn != 0 && len(reply.Documents) > int(query.NumberToReturn) {
+	if query.NumberToReturn > 0 && len(reply.Documents) > int(query.NumberToReturn) {
 		reply.Documents = reply.Documents[:query.NumberToReturn]
 	}
 	fmt.Printf("%s %s : nb=%v\n", dbName, colName, len(reply.Documents))
