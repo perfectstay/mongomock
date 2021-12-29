@@ -226,13 +226,15 @@ func getValuesAtPath(docInterface interface{}, path string) []interface{} {
 }
 
 func setValueAtPath(docInterface interface{}, path string, newValue interface{}) bson.D {
+	// https://docs.mongodb.com/manual/reference/operator/update/set/
+	// can use dot notation
 	pathItems := strings.Split(path, ".")
 	doc := docInterface.(bson.D)
 	found := false
 	for existingIndex, existingEntry := range doc {
 		if existingEntry.Key == pathItems[0] {
 			if len(pathItems) > 1 {
-				doc[existingIndex].Value = setValueAtPath(doc[existingIndex].Value, strings.Join(pathItems[1:], ","), newValue)
+				doc[existingIndex].Value = setValueAtPath(doc[existingIndex].Value, strings.Join(pathItems[1:], "."), newValue)
 			} else {
 				doc[existingIndex].Value = newValue
 			}
