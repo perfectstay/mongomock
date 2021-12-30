@@ -50,6 +50,30 @@ func Test_match(t *testing.T) {
 			filter: bson.D{{"a.b", bson.D{{"$in", bson.A{"d"}}}}},
 			want:   true,
 		},
+		{
+			name:   "exist",
+			doc:    bson.D{{"a", "b"}},
+			filter: bson.D{{"a", bson.D{{"$exists", true}}}},
+			want:   true,
+		},
+		{
+			name:   "not exist",
+			doc:    bson.D{{"a", "b"}},
+			filter: bson.D{{"c", bson.D{{"$exists", false}}}},
+			want:   true,
+		},
+		{
+			name: "or",
+			doc:  bson.D{{"a", "b"}},
+			filter: bson.D{{
+				"$or",
+				bson.A{
+					bson.D{{"c", "d"}},
+					bson.D{{"a", "b"}},
+				},
+			}},
+			want: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
