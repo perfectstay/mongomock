@@ -99,6 +99,6 @@ func NewDeployment() driver.Deployment {
 
 func NewClientOption() *options.ClientOptions {
 	return &options.ClientOptions{
-		Deployment: NewDeployement(),
+		Deployment: NewDeployment(),
 	}
 }
