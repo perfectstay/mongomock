@@ -1,6 +1,7 @@
 package db
 
 import (
+	"strconv"
 	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -32,31 +33,46 @@ func getValuesAtPath(docInterface interface{}, path string) []interface{} {
 	return currentValues
 }
 
-func setValueAtPath(docInterface interface{}, path string, newValue interface{}) bson.D {
+func setValueAtPath(docInterface interface{}, path string, newValue interface{}) interface{} {
 	// https://docs.mongodb.com/manual/reference/operator/update/set/
 	// can use dot notation
 	pathItems := strings.Split(path, ".")
-	doc := docInterface.(bson.D)
-	found := false
-	for existingIndex, existingEntry := range doc {
-		if existingEntry.Key == pathItems[0] {
-			if len(pathItems) > 1 {
-				doc[existingIndex].Value = setValueAtPath(doc[existingIndex].Value, strings.Join(pathItems[1:], "."), newValue)
-			} else {
-				doc[existingIndex].Value = newValue
-			}
+	if doc, isOrderedMap := docInterface.(bson.D); isOrderedMap {
+		found := false
+		for existingIndex, existingEntry := range doc {
+			if existingEntry.Key == pathItems[0] {
+				if len(pathItems) > 1 {
+					doc[existingIndex].Value = setValueAtPath(doc[existingIndex].Value, strings.Join(pathItems[1:], "."), newValue)
+				} else {
+					doc[existingIndex].Value = newValue
+				}
 
-			found = true
-			break
+				found = true
+				break
+			}
 		}
-	}
-	if !found {
-		for i := len(pathItems) - 1; i > 1; i-- {
-			newValue = bson.D{bson.E{Key: pathItems[i], Value: newValue}}
+		if !found {
+			for i := len(pathItems) - 1; i >= 1; i-- {
+				newValue = bson.D{bson.E{Key: pathItems[i], Value: newValue}}
+			}
+			doc = append(doc, bson.E{Key: pathItems[0], Value: newValue})
 		}
-		doc = append(doc, bson.E{Key: pathItems[0], Value: newValue})
+		return doc
 	}
-	return doc
+	if doc, isArray := docInterface.(bson.A); isArray {
+		updatedIndex, err := strconv.Atoi(pathItems[0])
+		if err != nil {
+			panic(err)
+		}
+		if len(pathItems) > 1 {
+			doc[updatedIndex] = setValueAtPath(doc[updatedIndex], strings.Join(pathItems[1:], "."), newValue)
+		} else {
+			doc[updatedIndex] = newValue
+		}
+		return doc
+	}
+
+	panic("type ?? ")
 }
 
 func applyUpdate(doc bson.D, update bson.D) bson.D {
@@ -65,7 +81,7 @@ func applyUpdate(doc bson.D, update bson.D) bson.D {
 		case "$set":
 			values := cmdEntry.Value.(bson.D)
 			for _, updateEntry := range values {
-				doc = setValueAtPath(doc, updateEntry.Key, updateEntry.Value)
+				doc = setValueAtPath(doc, updateEntry.Key, updateEntry.Value).(bson.D)
 			}
 		case "$unset":
 			// TODO

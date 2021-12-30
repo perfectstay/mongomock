@@ -79,6 +79,8 @@ func (d *Db) handleCmd(db, cmd string, query *protocol.OpQuery, reply *protocol.
 		return d.insert(db, query, reply)
 	case "findAndModify":
 		return d.findAndModify(db, query, reply)
+	case "update":
+		return d.update(db, query, reply)
 	default:
 		return fmt.Errorf("todo cmd %s", cmd)
 	}
@@ -133,6 +135,24 @@ func (d *Db) insert(dbName string, query *protocol.OpQuery, reply *protocol.OpRe
 		doc := docInterface.(bson.D)
 		col.Documents[doc.Map()["_id"]] = doc
 	}
+
+	return nil
+}
+
+func (d *Db) update(dbName string, query *protocol.OpQuery, reply *protocol.OpReply) error {
+	fmt.Println(query)
+	q, _ := query.Query.ToBSON()
+	fmt.Println(q)
+	colName := q[0].Value.(string)
+	_, _ = d.ensureExist(dbName, colName)
+	updates := q.Map()["updates"].(bson.A)
+	for _, update := range updates {
+		fmt.Println("TODO !! no implemented update.updates[i] !!", update)
+	}
+	// need to return :
+	// N int32 : Number of documents matched.
+	// NModified int32 : Number of documents modified.
+	// Upserted []Upsert : Information about upserted documents.
 
 	return nil
 }
@@ -199,7 +219,7 @@ func (d *Db) findAndModify(dbName string, query *protocol.OpQuery, reply *protoc
 		if id == nil {
 			id = fmt.Sprintf("%v", time.Now().UnixMicro())
 		}
-		newDoc = setValueAtPath(newDoc, "_id", id)
+		newDoc = setValueAtPath(newDoc, "_id", id).(bson.D)
 		fmt.Printf("upsert ! %s %s %v %v", dbName, colName, id, newDoc)
 		col.Documents[id] = newDoc
 	}
