@@ -91,7 +91,7 @@ func NewConnection() driver.Connection {
 	}
 }
 
-func NewDeployement() driver.Deployment {
+func NewDeployment() driver.Deployment {
 	return driver.SingleConnectionDeployment{
 		C: NewConnection(),
 	}
