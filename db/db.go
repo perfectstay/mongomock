@@ -153,7 +153,22 @@ func (d *Db) update(dbName string, query *protocol.OpQuery, reply *protocol.OpRe
 	// N int32 : Number of documents matched.
 	// NModified int32 : Number of documents modified.
 	// Upserted []Upsert : Information about upserted documents.
+	doc := bson.D{
+		{"ok", 1},
+		{"n", 1},
+		{"nModified", 1},
+	}
+	/* for upsert we should have also
 
+	{"upserted", bson.A{
+		bson.D{
+			{"index", 0},
+			{"_id", 3},
+		},
+	}},
+
+	*/
+	reply.AddDocument(doc)
 	return nil
 }
 
