@@ -92,6 +92,19 @@ func Test_match(t *testing.T) {
 			filter: bson.D{{"a", bson.D{{"$lte", "2022-07-02"}}}},
 			want:   false,
 		},
+		{
+			name: "$elemMatch",
+			doc: bson.D{{"a", bson.D{
+				{"b", "c"},
+				{"d", "e"},
+				{"f", "g"},
+			}}},
+			filter: bson.D{{"a", bson.D{{"$elemMatch", bson.D{
+				{"b", "c"},
+				{"d", "e"},
+			}}}}},
+			want: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

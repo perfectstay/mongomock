@@ -26,28 +26,35 @@ func match(doc bson.D, filter bson.D) bool {
 			continue
 		}
 		values := getValuesAtPath(doc, filterEntry.Key)
-		match := false
+		matchResult := false
 		if valObj, ok := filterEntry.Value.(bson.D); ok {
 			operator := valObj[0].Key
 			switch operator {
 			case "$exists":
 				exist := len(values) != 0
-				match = valObj[0].Value == exist
+				matchResult = valObj[0].Value == exist
+			case "$elemMatch":
+				for _, val := range values {
+					if match(val.(bson.D),valObj[0].Value.(bson.D)) {
+						matchResult = true
+						break
+					}
+				}
 			case "$lte", "$lt", "$gt", "$gte":
 				operatorValue := valObj[0].Value
 				for _, val := range values {
 					comparisonResult := strings.Compare(val.(string), operatorValue.(string))
 					switch operator {
 					case "$lte":
-						match = comparisonResult <= 0
+						matchResult = comparisonResult <= 0
 					case "$lt":
-						match = comparisonResult < 0
+						matchResult = comparisonResult < 0
 					case "$gt":
-						match = comparisonResult > 0
+						matchResult = comparisonResult > 0
 					case "$gte":
-						match = comparisonResult >= 0
+						matchResult = comparisonResult >= 0
 					}
-					if match {
+					if matchResult {
 						break
 					}
 				}
@@ -56,23 +63,23 @@ func match(doc bson.D, filter bson.D) bool {
 					operatorValues := valObj[0].Value.(bson.A)
 					for _, operatorValue := range operatorValues {
 						if reflect.DeepEqual(operatorValue, val) {
-							match = true
+							matchResult = true
 							break
 						}
 					}
 				}
 			case "$ne":
-				match = true
+				matchResult = true
 				for _, val := range values {
 					if reflect.DeepEqual(filterEntry.Value, val) {
-						match = false
+						matchResult = false
 						break
 					}
 				}
 			default:
 				for _, val := range values {
 					if reflect.DeepEqual(filterEntry.Value, val) {
-						match = true
+						matchResult = true
 						break
 					}
 				}
@@ -80,12 +87,12 @@ func match(doc bson.D, filter bson.D) bool {
 		} else {
 			for _, val := range values {
 				if reflect.DeepEqual(filterEntry.Value, val) {
-					match = true
+					matchResult = true
 					break
 				}
 			}
 		}
-		if !match {
+		if !matchResult {
 			return false
 		}
 	}
