@@ -74,6 +74,24 @@ func Test_match(t *testing.T) {
 			}},
 			want: true,
 		},
+		{
+			name:   "$lte date 1",
+			doc:    bson.D{{"a", "2022-07-03"}},
+			filter: bson.D{{"a", bson.D{{"$lte", "2022-07-04"}}}},
+			want:   true,
+		},
+		{
+			name:   "$lte date 2",
+			doc:    bson.D{{"a", "2022-07-03"}},
+			filter: bson.D{{"a", bson.D{{"$lte", "2022-07-03"}}}},
+			want:   true,
+		},
+		{
+			name:   "$lte date 3",
+			doc:    bson.D{{"a", "2022-07-03"}},
+			filter: bson.D{{"a", bson.D{{"$lte", "2022-07-02"}}}},
+			want:   false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
