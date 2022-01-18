@@ -2,9 +2,19 @@ package db
 
 import (
 	"testing"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+func newDate(val string) primitive.DateTime {
+	timeVal, err := time.Parse("2006-02-01", val)
+	if err != nil {
+		panic(err)
+	}
+	return primitive.NewDateTimeFromTime(timeVal)
+}
 
 func Test_match(t *testing.T) {
 
@@ -75,22 +85,28 @@ func Test_match(t *testing.T) {
 			want: true,
 		},
 		{
-			name:   "$lte date 1",
+			name:   "$lte date string 1",
 			doc:    bson.D{{"a", "2022-07-03"}},
 			filter: bson.D{{"a", bson.D{{"$lte", "2022-07-04"}}}},
 			want:   true,
 		},
 		{
-			name:   "$lte date 2",
+			name:   "$lte date string 2",
 			doc:    bson.D{{"a", "2022-07-03"}},
 			filter: bson.D{{"a", bson.D{{"$lte", "2022-07-03"}}}},
 			want:   true,
 		},
 		{
-			name:   "$lte date 3",
+			name:   "$lte date string 3",
 			doc:    bson.D{{"a", "2022-07-03"}},
 			filter: bson.D{{"a", bson.D{{"$lte", "2022-07-02"}}}},
 			want:   false,
+		},
+		{
+			name:   "$lte date",
+			doc:    bson.D{{"a", newDate("2022-07-03")}},
+			filter: bson.D{{"a", bson.D{{"$lte", newDate("2022-07-04")}}}},
+			want:   true,
 		},
 		{
 			name: "$elemMatch",

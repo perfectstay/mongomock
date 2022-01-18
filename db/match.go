@@ -6,7 +6,17 @@ import (
 	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+func objectCompare(a interface{}, b interface{}) int {
+	aDate, aDateOk := a.(primitive.DateTime)
+	bDate, bDateOk := b.(primitive.DateTime)
+	if aDateOk && bDateOk {
+		return int(aDate) - int(bDate)
+	}
+	return strings.Compare(a.(string), b.(string))
+}
 
 func match(doc bson.D, filter bson.D) bool {
 	for _, filterEntry := range filter {
@@ -35,7 +45,7 @@ func match(doc bson.D, filter bson.D) bool {
 				matchResult = valObj[0].Value == exist
 			case "$elemMatch":
 				for _, val := range values {
-					if match(val.(bson.D),valObj[0].Value.(bson.D)) {
+					if match(val.(bson.D), valObj[0].Value.(bson.D)) {
 						matchResult = true
 						break
 					}
@@ -43,7 +53,7 @@ func match(doc bson.D, filter bson.D) bool {
 			case "$lte", "$lt", "$gt", "$gte":
 				operatorValue := valObj[0].Value
 				for _, val := range values {
-					comparisonResult := strings.Compare(val.(string), operatorValue.(string))
+					comparisonResult := objectCompare(val, operatorValue)
 					switch operator {
 					case "$lte":
 						matchResult = comparisonResult <= 0
