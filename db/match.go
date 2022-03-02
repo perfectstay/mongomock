@@ -1,7 +1,6 @@
 package db
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 
@@ -30,7 +29,7 @@ func match(doc bson.D, filter bson.D) bool {
 				}
 			}
 			if !matched {
-				fmt.Printf("not match %+v\n", filterEntry)
+				d.tracef("not match %+v", filterEntry)
 				return false
 			}
 			continue

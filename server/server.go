@@ -47,7 +47,7 @@ func (p *Server) clientAcceptLoop() {
 			if strings.Contains(err.Error(), "use of closed network connection") {
 				break
 			}
-			fmt.Println(err)
+			p.error(err)
 			continue
 		}
 
@@ -55,29 +55,39 @@ func (p *Server) clientAcceptLoop() {
 	}
 }
 
+func (p *Server) tracef(pattern string, args ...interface{}) {
+	if db.Trace {
+		fmt.Printf(pattern+"\n", args...)
+	}
+}
+
+func (p *Server) error(err error) {
+	fmt.Println(err)
+}
+
 // clientServeLoop loops on a single client connected to the proxy and
 // dispatches its requests.
 func (p *Server) clientServeLoop(c net.Conn) {
-	fmt.Printf("client %s connected to %s", c.RemoteAddr(), p)
+	p.tracef("client %s connected to %s", c.RemoteAddr(), p)
 
 	defer func() {
-		fmt.Printf("client %s disconnected from %s", c.RemoteAddr(), p)
+		p.tracef("client %s disconnected from %s", c.RemoteAddr(), p)
 		if err := c.Close(); err != nil {
-			fmt.Println(err)
+			p.error(err)
 		}
 	}()
 
 	for {
 		h, err := protocol.ReadMsgHeader(c)
 		if err != nil {
-			fmt.Println(err)
+			p.error(err)
 			return
 		}
 
-		fmt.Printf("handling message %s from %s for %s", h, c.RemoteAddr(), p)
+		p.tracef("handling message %s from %s for %s", h, c.RemoteAddr(), p)
 		reply, err := p.database.Handle(h)
 		if err != nil {
-			fmt.Println(err)
+			p.error(err)
 			return
 		}
 		if reply != nil {
