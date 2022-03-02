@@ -29,7 +29,7 @@ func match(doc bson.D, filter bson.D) bool {
 				}
 			}
 			if !matched {
-				d.tracef("not match %+v", filterEntry)
+				tracef("not match %+v", filterEntry)
 				return false
 			}
 			continue

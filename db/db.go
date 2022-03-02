@@ -24,41 +24,41 @@ type Db struct {
 
 var Trace bool = false
 
-func (d *Db) trace(val interface{}) {
+func trace(val ...interface{}) {
 	if Trace {
-		fmt.Println(val)
+		fmt.Println(val...)
 	}
 }
 
-func (d *Db) tracef(format string, val ...interface{}) {
+func tracef(format string, val ...interface{}) {
 	if Trace {
 		fmt.Printf(format+"\n", val...)
 	}
 }
 
 func (d *Db) Handle(h *protocol.MsgHeader) (*protocol.OpReply, error) {
-	d.trace(h.GetOpCode())
+	trace(h.GetOpCode())
 	if h.GetOpCode() == protocol.OpQueryCode {
 		query, err := protocol.ReadOpQuery(h, bytes.NewReader(h.Message))
 		if err != nil {
 			return nil, err
 		}
 		if Trace {
-			d.trace("query=", query.String())
+			trace("query=", query.String())
 			bsonRaw, _ := query.Query.ToBSON()
 			raw, _ := bson.MarshalExtJSON(bsonRaw, true, true)
-			d.trace("query=", string(raw))
+			trace("query=", string(raw))
 		}
 		op := protocol.NewOpReply(query, 1111111)
 		nameParts := strings.Split(query.FullCollectionName.String(), ".")
 		dbName := nameParts[0]
 		col := strings.Join(nameParts[1:], ".")
-		d.tracef("db=%v col=%v", dbName, col)
+		tracef("db=%v col=%v", dbName, col)
 		switch col {
 		case "$cmd":
 			q, _ := query.Query.ToBSON()
 			cmd := q[0].Key
-			d.tracef("cmd=%v", cmd)
+			tracef("cmd=%v", cmd)
 			err = d.handleCmd(dbName, cmd, query, op)
 			// error handling is done at : x/mongo/driver/errors.go line 351
 			if len(op.Documents) == 0 {
@@ -154,9 +154,9 @@ func (d *Db) insert(dbName string, query *protocol.OpQuery, reply *protocol.OpRe
 }
 
 func (d *Db) update(dbName string, query *protocol.OpQuery, reply *protocol.OpReply) error {
-	d.trace(query)
+	trace(query)
 	q, _ := query.Query.ToBSON()
-	d.trace(q)
+	trace(q)
 	colName := q[0].Value.(string)
 	_, _ = d.ensureExist(dbName, colName)
 	updates := q.Map()["updates"].(bson.A)
@@ -214,7 +214,7 @@ func (d *Db) find(dbName, colName string, query *protocol.OpQuery, reply *protoc
 		reply.Documents = reply.Documents[:query.NumberToReturn]
 	}
 
-	d.tracef("%s %s : nb=%v", dbName, colName, len(reply.Documents))
+	tracef("%s %s : nb=%v", dbName, colName, len(reply.Documents))
 	reply.NumberReturned = int32(len(reply.Documents))
 	return nil
 }
@@ -249,7 +249,7 @@ func (d *Db) findAndModify(dbName string, query *protocol.OpQuery, reply *protoc
 			id = fmt.Sprintf("%v", time.Now().UnixMicro())
 		}
 		newDoc = setValueAtPath(newDoc, "_id", id).(bson.D)
-		d.tracef("upsert ! %s %s %v %v", dbName, colName, id, newDoc)
+		tracef("upsert ! %s %s %v %v", dbName, colName, id, newDoc)
 		col.Documents[id] = newDoc
 	}
 	return nil
