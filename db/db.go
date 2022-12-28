@@ -196,6 +196,9 @@ func (d *Db) find(dbName, colName string, query *protocol.OpQuery, reply *protoc
 		return nil
 	}
 	q, _ := query.Query.ToBSON()
+	if queryVal, ok := q.Map()["$query"]; ok {
+		q = queryVal.(bson.D)
+	}
 	for _, doc := range col.Documents {
 		if !match(doc, q) {
 			continue
@@ -209,7 +212,11 @@ func (d *Db) find(dbName, colName string, query *protocol.OpQuery, reply *protoc
 		}
 		reply.AddDocument(doc)
 	}
-	reply.Documents = reply.Documents[query.NumberToSkip:]
+	if len(reply.Documents) < int(query.NumberToSkip) {
+		reply.Documents = nil
+	} else {
+		reply.Documents = reply.Documents[query.NumberToSkip:]
+	}
 	if query.NumberToReturn > 0 && len(reply.Documents) > int(query.NumberToReturn) {
 		reply.Documents = reply.Documents[:query.NumberToReturn]
 	}

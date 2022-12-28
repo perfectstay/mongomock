@@ -12,19 +12,23 @@ func getValuesAtPath(docInterface interface{}, path string) []interface{} {
 	currentValues := []interface{}{docInterface}
 	for _, pathItem := range strings.Split(path, ".") {
 		newValues := []interface{}{}
-		for _, currentItem := range currentValues {
-			doc, ok := currentItem.(bson.D)
-			if !ok {
-				return nil
-			}
-			for _, existingEntry := range doc {
-				if existingEntry.Key == pathItem {
-					if itemArray, ok := existingEntry.Value.(bson.A); ok {
-						newValues = append(newValues, itemArray...)
-					} else {
-						newValues = append(newValues, existingEntry.Value)
+		for index, currentItem := range currentValues {
+			doc, isDoc := currentItem.(bson.D)
+			if isDoc {
+				for _, existingEntry := range doc {
+					if existingEntry.Key == pathItem {
+						if itemArray, ok := existingEntry.Value.(bson.A); ok {
+							newValues = append(newValues, itemArray...)
+						} else {
+							newValues = append(newValues, existingEntry.Value)
+						}
+						break
 					}
-					break
+				}
+			} else {
+				arrayIndex, err := strconv.Atoi(pathItem)
+				if err == nil && arrayIndex == index {
+					newValues = append(newValues, currentItem)
 				}
 			}
 		}
