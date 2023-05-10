@@ -251,11 +251,15 @@ func (d *Db) findAndModify(dbName string, query *protocol.OpQuery, reply *protoc
 	if nbUpdated == 0 && upsert {
 		_, col := d.ensureExist(dbName, colName)
 		newDoc := update.Map()["$set"].(bson.D)
+		setOnInsertValues := update.Map()["$setOnInsert"].(bson.D)
 		id := queryParam.Map()["_id"]
 		if id == nil {
 			id = fmt.Sprintf("%v", time.Now().UnixMicro())
 		}
 		newDoc = setValueAtPath(newDoc, "_id", id).(bson.D)
+		for _, values := range setOnInsertValues {
+			newDoc = setValueAtPath(newDoc, values.Key, values.Value).(bson.D)
+		}
 		tracef("upsert ! %s %s %v %v", dbName, colName, id, newDoc)
 		col.Documents[id] = newDoc
 	}
