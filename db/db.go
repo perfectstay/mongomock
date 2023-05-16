@@ -249,9 +249,12 @@ func (d *Db) findAndModify(dbName string, query *protocol.OpQuery, reply *protoc
 		}
 	}
 	if nbUpdated == 0 && upsert {
+		var setOnInsertValues bson.D
 		_, col := d.ensureExist(dbName, colName)
 		newDoc := update.Map()["$set"].(bson.D)
-		setOnInsertValues := update.Map()["$setOnInsert"].(bson.D)
+		if _, ok := update.Map()["$setOnInsert"]; ok {
+			setOnInsertValues = update.Map()["$setOnInsert"].(bson.D)
+		}
 		id := queryParam.Map()["_id"]
 		if id == nil {
 			id = fmt.Sprintf("%v", time.Now().UnixMicro())
