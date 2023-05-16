@@ -12,6 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/x/mongo/driver"
 )
 
+var _ driver.Connection = (*TestConnection)(nil)
+
 type TestConnection struct {
 	database     *db.Db
 	responseChan chan ([]byte)
